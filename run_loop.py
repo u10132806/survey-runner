@@ -46,6 +46,8 @@ if not PHONE or not EMAIL_USER:
 EMAIL_DOMAIN = os.environ.get("SURVEY_EMAIL_DOMAIN", "gmail.com")
 DELAY_SECONDS = float(os.environ.get("DELAY_SECONDS", "1"))
 DATABASE_URL = os.environ.get("DATABASE_URL")
+BACKOFF_BASE_SECONDS = float(os.environ.get("BACKOFF_BASE_SECONDS", "5"))
+BACKOFF_MAX_SECONDS = float(os.environ.get("BACKOFF_MAX_SECONDS", "900"))
 
 state = {
     "runs": 0, "ok": 0, "failed": 0,
@@ -59,6 +61,18 @@ def run_succeeded(rows, exit_code):
     if rows:
         return all((r[4] or "").strip().lower() == "ok" for r in rows)
     return exit_code == 0
+
+
+def is_unauthorized(status):
+    """True if the logged status for a run looks like an HTTP 401."""
+    s = (status or "").lower()
+    return "401" in s or "unauthorized" in s
+
+
+def backoff_delay(attempt):
+    """Exponential backoff: base * 2**(attempt-1), capped, with jitter in [ceiling/2, ceiling]."""
+    ceiling = min(BACKOFF_MAX_SECONDS, BACKOFF_BASE_SECONDS * (2 ** (attempt - 1)))
+    return random.uniform(ceiling / 2, ceiling)
 
 
 def stats_line():
@@ -239,6 +253,7 @@ def main():
         db_init()
         print("Neon storage enabled", flush=True)
 
+    consecutive_401s = 0
     try:
         while True:
             state["runs"] += 1
@@ -274,7 +289,17 @@ def main():
                 except Exception as e:  # don't let a DB hiccup kill the loop
                     print(f"[run {run}] Neon insert failed: {e}", flush=True)
 
-            time.sleep(DELAY_SECONDS)
+            if is_unauthorized(state["last_status"]):
+                consecutive_401s += 1
+                delay = backoff_delay(consecutive_401s)
+                print(f"[run {run}] 401 #{consecutive_401s} in a row, "
+                      f"backing off {delay:.1f}s", flush=True)
+            else:
+                if consecutive_401s:
+                    print(f"[run {run}] recovered after {consecutive_401s} 401(s)", flush=True)
+                consecutive_401s = 0
+                delay = DELAY_SECONDS
+            time.sleep(delay)
     except KeyboardInterrupt:
         print(f"\nStopped. session: {stats_line()}")
         print(csv_report())
