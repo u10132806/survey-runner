@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: survey-runner
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run_loop.py
+    healthCheckPath: /health
+    envVars:
+      - key: SURVEY_PHONE
+        sync: false   # set in the Render dashboard
+      - key: SURVEY_EMAIL_USER
+        sync: false
+      - key: SURVEY_EMAIL_DOMAIN
+        value: gmail.com
+      - key: DATABASE_URL
+        sync: false   # Neon connection string (optional, keeps all-time stats across restarts)
+      - key: DELAY_SECONDS
+        value: "1"

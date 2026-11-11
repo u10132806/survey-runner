@@ -1,0 +1,10 @@
+# local data / captures / secrets - keep out of the repo
+submissions.csv
+*.har
+.env
+__pycache__/
+
+# local-only files
+survey-form.html
+fill_survey.py
+fill-survey.ps1
