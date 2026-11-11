@@ -1,11 +1,11 @@
-"""Run fill_survey3.py in a loop until interrupted.
+"""Run fill_survey2.py in a loop until interrupted.
 
 Local:  python run_loop.py
 Render: same command; it also serves /health on $PORT so Render's free
         web service accepts it.
 
 If DATABASE_URL is set (Neon connection string), every new row that
-fill_survey3.py appends to submissions.csv is copied into the Neon
+fill_survey2.py appends to submissions.csv is copied into the Neon
 `submissions` table. Without DATABASE_URL it behaves like before.
 
 One-off import of the existing CSV into Neon:
@@ -56,7 +56,7 @@ state = {
 
 
 def run_succeeded(rows, exit_code):
-    """A run counts as OK if fill_survey3.py logged status 'ok' for it.
+    """A run counts as OK if fill_survey2.py logged status 'ok' for it.
     If it logged nothing, fall back to the exit code."""
     if rows:
         return all((r[4] or "").strip().lower() == "ok" for r in rows)
@@ -264,7 +264,7 @@ def main():
 
             before = csv_size()
             result = subprocess.run(
-                [sys.executable, "fill_survey3.py", email, PHONE], cwd=HERE
+                [sys.executable, "fill_survey2.py", email, PHONE], cwd=HERE
             )
             state["last_exit"] = result.returncode
             rows = parse_rows(read_csv_from(before))

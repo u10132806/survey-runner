@@ -38,7 +38,7 @@ from html import unescape
 
 FORM_URL = (
     "https://docs.google.com/forms/d/e/"
-    "1FAIpQLSfJP8QZCHmmH3oKvNwZF95krMB4AaliQddrC-Hw0Aq6Zhy6eA/formResponse"
+    "1FAIpQLSfbW4oYkwo3a-iZdCq20DUOZLI1cDYNQdd6-cKfFzSIK68_Kw/formResponse"
 )
 
 CONFIRMATION = "Your response has been recorded"
