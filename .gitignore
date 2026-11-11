@@ -3,6 +3,12 @@ submissions.csv
 *.har
 .env
 __pycache__/
+dumps/
+runs.csv
+simplehar.txt
+submitnew.txt
+newmarkup.txt
+fill_survey2.backup.py
 
 # local-only files
 survey-form.html
