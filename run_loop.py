@@ -24,30 +24,26 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 HERE = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(HERE, "submissions.csv")
 
-import random
+import re
 
-FIRST_NAMES = [
-    "James", "Thabo", "Sipho", "Lerato", "Naledi", "Ayanda", "Michael", "Sarah", "Jessica",
-    "Daniel", "Pieter", "Johan", "Anika", "Zanele", "Kagiso", "Bongani", "Nomvula", "Lindiwe",
-    "Tshepo", "Refilwe", "Priya", "Ravi", "Aisha", "Yusuf", "David", "Emma", "Liam", "Olivia",
-    "Mpho", "Karabo", "Lwazi", "Busisiwe", "Chloe", "Ethan", "Megan", "Ruan", "Thandeka",
-]
+from faker import Faker
 
-SURNAMES = [
-    "Nkosi", "Dlamini", "Mokoena", "Khumalo", "Ndlovu", "Botha", "van der Merwe", "Smith",
-    "Naidoo", "Pillay", "Mahlangu", "Zulu", "Mthembu", "Pretorius", "Jacobs", "Williams",
-    "Molefe", "Sithole", "Venter", "du Plessis", "Govender", "Petersen", "Mabaso", "Coetzee",
-    "Nel", "Hendricks", "Radebe", "Maseko", "Ngcobo", "Baloyi", "Steyn", "Fourie", "Adams",
-]
+fake = Faker(["zu_ZA", "en_US"])
+
+
+def _clean(part: str) -> str:
+    """Lowercase and keep only a-z (drops spaces, apostrophes, hyphens, accents)."""
+    return re.sub(r"[^a-z]", "", part.lower())
+
 
 def generate_random_email() -> str:
     """
     Generates a random email address in the format:
     {firstname}.{surname}@stitchs.co.za
     """
-    first_name = random.choice(FIRST_NAMES).lower()
-    surname = random.choice(SURNAMES).lower().replace(" ", "")
-    
+    first_name = _clean(fake.first_name())
+    surname = _clean(fake.last_name())
+
     return f"{first_name}.{surname}@stitchs.co.za"
 
 def load_dotenv(path=os.path.join(HERE, ".env")):
