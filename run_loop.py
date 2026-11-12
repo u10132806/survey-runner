@@ -24,6 +24,32 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 HERE = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(HERE, "submissions.csv")
 
+import random
+
+FIRST_NAMES = [
+    "James", "Thabo", "Sipho", "Lerato", "Naledi", "Ayanda", "Michael", "Sarah", "Jessica",
+    "Daniel", "Pieter", "Johan", "Anika", "Zanele", "Kagiso", "Bongani", "Nomvula", "Lindiwe",
+    "Tshepo", "Refilwe", "Priya", "Ravi", "Aisha", "Yusuf", "David", "Emma", "Liam", "Olivia",
+    "Mpho", "Karabo", "Lwazi", "Busisiwe", "Chloe", "Ethan", "Megan", "Ruan", "Thandeka",
+]
+
+SURNAMES = [
+    "Nkosi", "Dlamini", "Mokoena", "Khumalo", "Ndlovu", "Botha", "van der Merwe", "Smith",
+    "Naidoo", "Pillay", "Mahlangu", "Zulu", "Mthembu", "Pretorius", "Jacobs", "Williams",
+    "Molefe", "Sithole", "Venter", "du Plessis", "Govender", "Petersen", "Mabaso", "Coetzee",
+    "Nel", "Hendricks", "Radebe", "Maseko", "Ngcobo", "Baloyi", "Steyn", "Fourie", "Adams",
+]
+
+def generate_random_email() -> str:
+    """
+    Generates a random email address in the format:
+    {firstname}.{surname}@stitchs.co.za
+    """
+    first_name = random.choice(FIRST_NAMES).lower()
+    surname = random.choice(SURNAMES).lower().replace(" ", "")
+    
+    return f"{first_name}.{surname}@stitchs.co.za"
+
 def load_dotenv(path=os.path.join(HERE, ".env")):
     """Load KEY=VALUE lines from a local .env (not committed) into os.environ."""
     try:
@@ -258,7 +284,8 @@ def main():
         while True:
             state["runs"] += 1
             run = state["runs"]
-            email = f"{EMAIL_USER}+{random.randint(100000, 999999)}@{EMAIL_DOMAIN}"
+            #email = f"{EMAIL_USER}+{random.randint(100000, 999999)}@{EMAIL_DOMAIN}"
+            email = f"{generate_random_email()}"
             state["last_email"] = email
             print(f"[run {run}] {email}", flush=True)
 
