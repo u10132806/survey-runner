@@ -24,6 +24,31 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 HERE = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(HERE, "submissions.csv")
 
+# ---------- disabled ----------
+# The survey runner is switched off. It only reports "closed": on Render
+# (PORT set) it serves "closed" over HTTP so the web service stays up;
+# locally it prints "closed" and exits.
+if __name__ == "__main__":
+    print("closed", flush=True)
+    _port = os.environ.get("PORT")
+    if _port:
+        class _Closed(BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                self.end_headers()
+                self.wfile.write(b"closed\n")
+
+            def do_HEAD(self):
+                self.send_response(200)
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        HTTPServer(("0.0.0.0", int(_port)), _Closed).serve_forever()
+    sys.exit(0)
+
 import re
 
 from faker import Faker
